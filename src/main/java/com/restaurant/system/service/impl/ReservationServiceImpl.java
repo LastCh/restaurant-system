@@ -31,14 +31,14 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
         if (reservationDTO.getReservationTime() == null) {
-            throw new IllegalArgumentException("Время бронирования не может быть пустым");
+            throw new IllegalArgumentException("Reservation time cannot be empty");
         }
 
         Client client = clientRepository.findById(reservationDTO.getClientId())
-                .orElseThrow(() -> new NotFoundException("Клиент не найден"));
+                .orElseThrow(() -> new NotFoundException("Client not found"));
 
         RestaurantTable table = tableRepository.findById(reservationDTO.getTableId())
-                .orElseThrow(() -> new NotFoundException("Стол не найден"));
+                .orElseThrow(() -> new NotFoundException("Table not found"));
 
         List<Reservation> conflictingReservations = reservationRepository
                 .findActiveReservationsForTable(
@@ -48,7 +48,7 @@ public class ReservationServiceImpl implements ReservationService {
                 );
 
         if (!conflictingReservations.isEmpty()) {
-            throw new IllegalArgumentException("Стол занят в указанное время");
+            throw new IllegalArgumentException("The table is occupied at the indicated time");
         }
 
         Reservation reservation = new Reservation();
@@ -100,7 +100,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationDTO updateReservation(Long id, ReservationDTO reservationDTO) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
+                .orElseThrow(() -> new NotFoundException("Reservations not found"));
 
         if (reservationDTO.getReservationTime() != null) {
             reservation.setReservationTime(reservationDTO.getReservationTime());
@@ -121,7 +121,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void deleteReservation(Long id) {
         if (!reservationRepository.existsById(id)) {
-            throw new NotFoundException("Бронирование не найдено");
+            throw new NotFoundException("Reservations not found");
         }
         reservationRepository.deleteById(id);
     }
@@ -134,7 +134,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         if (conflicting.isEmpty()) {
             RestaurantTable table = tableRepository.findById(tableId)
-                    .orElseThrow(() -> new NotFoundException("Стол не найден"));
+                    .orElseThrow(() -> new NotFoundException("Table not found"));
 
             Reservation freeSlot = new Reservation();
             freeSlot.setTable(table);
@@ -150,7 +150,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void cancelReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
+                .orElseThrow(() -> new NotFoundException("Reservation not found"));
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);

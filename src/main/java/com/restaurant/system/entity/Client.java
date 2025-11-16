@@ -30,7 +30,7 @@ public class Client implements Serializable {
     @Column(unique = true)
     private String email;
 
-    @Column
+    @Column(unique = true)
     private String phone;
 
     @Column(name = "created_at")

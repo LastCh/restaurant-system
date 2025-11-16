@@ -81,7 +81,7 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public void deleteIngredient(Long id) {
         if (!ingredientRepository.existsById(id)) {
-            throw new NotFoundException("Ингредиент не найден");
+            throw new NotFoundException("Ingredient not found");
         }
         ingredientRepository.deleteById(id);
     }
@@ -97,12 +97,12 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public void updateStock(Long id, BigDecimal quantity) {
         Ingredient ingredient = ingredientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ингредиент не найден"));
+                .orElseThrow(() -> new NotFoundException("Ingredient not found"));
 
         BigDecimal newStock = ingredient.getStockQuantity().add(quantity);
 
         if (newStock.signum() < 0) {
-            throw new IllegalArgumentException("Недостаточно ингредиента на складе");
+            throw new IllegalArgumentException("Not enough ingredient in stock");
         }
 
         ingredient.setStockQuantity(newStock);

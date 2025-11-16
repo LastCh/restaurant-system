@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO createOrder(OrderDTO orderDTO) {
         Client client = clientRepository.findById(orderDTO.getClientId())
-                .orElseThrow(() -> new NotFoundException("Клиент не найден"));
+                .orElseThrow(() -> new NotFoundException("Client not found" ));
 
         Order order = new Order();
         order.setClient(client);  // ← Устанавливаем объект, не ID
@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO updateOrderStatus(Long id, OrderStatus status) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Заказ не найден"));
+                .orElseThrow(() -> new NotFoundException("Order not found"));
         order.setStatus(status);
         return toDTO(orderRepository.save(order));
     }
@@ -91,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void deleteOrder(Long id) {
         if (!orderRepository.existsById(id)) {
-            throw new NotFoundException("Заказ не найден");
+            throw new NotFoundException("Order not found");
         }
         orderRepository.deleteById(id);
     }
@@ -99,10 +99,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderItemDTO addItemToOrder(Long orderId, OrderItemDTO itemDTO) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("Заказ не найден"));
+                .orElseThrow(() -> new NotFoundException("Order not found"));
 
         Dish dish = dishRepository.findById(itemDTO.getDishId())
-                .orElseThrow(() -> new NotFoundException("Блюдо не найдено"));
+                .orElseThrow(() -> new NotFoundException("Dish not found"));
 
         OrderItem item = new OrderItem();
         item.setOrder(order);
@@ -126,10 +126,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void removeItemFromOrder(Long orderId, Long itemId) {
         OrderItem item = orderItemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Позиция не найдена"));
+                .orElseThrow(() -> new NotFoundException("Dish not found"));
 
         if (!item.getOrder().getId().equals(orderId)) {
-            throw new IllegalArgumentException("Позиция не принадлежит этому заказу");
+            throw new IllegalArgumentException("Dish does not belong to this order");
         }
 
         orderItemRepository.deleteById(itemId);
@@ -138,7 +138,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO completeOrder(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Заказ не найден"));
+                .orElseThrow(() -> new NotFoundException("Order not found"));
 
         order.setStatus(OrderStatus.COMPLETED);
 

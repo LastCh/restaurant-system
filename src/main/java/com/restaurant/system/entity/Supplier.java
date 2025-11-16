@@ -29,10 +29,10 @@ public class Supplier implements Serializable {
     @Column(length = 100)
     private String inn;
 
-    @Column(length = 50)
+    @Column(length = 50, unique = true)
     private String phone;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
     @Column(columnDefinition = "TEXT")

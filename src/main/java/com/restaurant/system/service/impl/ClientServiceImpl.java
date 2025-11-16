@@ -31,25 +31,30 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ClientDTO> getClientById(Long id) {
-        return clientRepository.findById(id).map(this::toDTO);
+        return clientRepository.findById(id)
+                .map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ClientDTO> getClientByEmail(String email) {
-        return clientRepository.findByEmail(email).map(this::toDTO);
+        return clientRepository.findByEmail(email)
+                .map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ClientDTO> getAllClients() {
-        return clientRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+        return clientRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ClientDTO updateClient(Long id, ClientDTO clientDTO) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Client not found"));
+                .orElseThrow(() -> new NotFoundException("Client not found with id: " + id));
         if (clientDTO.getFullName() != null) client.setFullName(clientDTO.getFullName());
         if (clientDTO.getPhone() != null) client.setPhone(clientDTO.getPhone());
         if (clientDTO.getEmail() != null) client.setEmail(clientDTO.getEmail());
@@ -58,7 +63,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void deleteClient(Long id) {
-        if (!clientRepository.existsById(id)) throw new NotFoundException("Client not found");
+        if (!clientRepository.existsById(id)) throw new NotFoundException("Client not found with id: " + id);
         clientRepository.deleteById(id);
     }
 
