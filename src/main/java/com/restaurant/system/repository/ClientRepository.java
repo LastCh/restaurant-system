@@ -1,4 +1,13 @@
 package com.restaurant.system.repository;
 
-public class ClientRepository {
+import com.restaurant.system.entity.Client;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface ClientRepository extends JpaRepository<Client, Long> {
+    Optional<Client> findByEmail(String email);
+    boolean existsByEmail(String email);
 }

@@ -12,14 +12,12 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DishDTO {
+public class IngredientDTO {
     private Long id;
     private String name;
-    private String description;
-    private String category;
-    private BigDecimal price;
-    private Boolean isAvailable;
-    private String imageUrl;
-    private Integer preparationTimeMinutes;
+    private String unit;  // kg, g, l, ml, piece
+    private BigDecimal stockQuantity;
+    private BigDecimal costPerUnit;
+    private BigDecimal minStockLevel;
     private OffsetDateTime createdAt;
 }

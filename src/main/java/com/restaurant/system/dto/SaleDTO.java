@@ -1,5 +1,6 @@
 package com.restaurant.system.dto;
 
+import com.restaurant.system.entity.enums.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,14 +13,12 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DishDTO {
+public class SaleDTO {
     private Long id;
-    private String name;
-    private String description;
-    private String category;
-    private BigDecimal price;
-    private Boolean isAvailable;
-    private String imageUrl;
-    private Integer preparationTimeMinutes;
-    private OffsetDateTime createdAt;
+    private OffsetDateTime saleTime;
+    private BigDecimal total;
+    private PaymentMethod paymentMethod;
+    private Long orderId;
+    private String receiptNumber;
+    private Long processedByUserId;
 }

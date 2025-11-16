@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Component
+//@Component
 public class RestaurantFacade {
     private final ClientService clientService;
     private final ReservationService reservationService;
@@ -19,9 +19,11 @@ public class RestaurantFacade {
         this.orderService = orderService;
     }
 
+    /*
     public ClientDTO registerClientWithReservation(ClientDTO clientDTO, LocalDateTime reservationTime) {
         ClientDTO client = clientService.createClient(clientDTO);
         reservationService.createReservation(client.getId(), reservationTime);
         return client;
     }
+     */
 }

@@ -4,47 +4,41 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "dishes")
-@Data
+@Table(name = "restaurant_tables")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Dish implements Serializable {
+public class RestaurantTable implements Serializable {
 
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 8L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
-
-    @Column(columnDefinition = "TEXT")  // ← ДОБАВИТЬ
-    private String description;
-
-    @Column
-    private String category;
+    @Column(name = "table_number", unique = true, nullable = false, length = 20)
+    private String tableNumber;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private Integer capacity;
 
     @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable;
+    @Builder.Default
+    private Boolean isAvailable = true;
 
-    @Column(name = "image_url", length = 500)  // ← ДОБАВИТЬ
-    private String imageUrl;
+    @Column(length = 100)
+    private String location;
 
-    @Column(name = "preparation_time_minutes")  // ← ДОБАВИТЬ
-    private Integer preparationTimeMinutes;
-
-    @OneToMany(mappedBy = "dish", cascade = CascadeType.ALL)
-    private List<DishIngredient> dishIngredients;
+    @OneToMany(mappedBy = "table", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @Builder.Default
+    private List<Reservation> reservations = new ArrayList<>();
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
@@ -66,9 +60,9 @@ public class Dish implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Dish)) return false;
-        Dish dish = (Dish) o;
-        return id != null && id.equals(dish.id);
+        if (!(o instanceof RestaurantTable)) return false;
+        RestaurantTable that = (RestaurantTable) o;
+        return id != null && id.equals(that.id);
     }
 
     @Override
@@ -78,6 +72,6 @@ public class Dish implements Serializable {
 
     @Override
     public String toString() {
-        return "Dish{id=" + id + ", name='" + name + "', price=" + price + "}";
+        return "RestaurantTable{id=" + id + ", tableNumber='" + tableNumber + "', capacity=" + capacity + "}";
     }
 }

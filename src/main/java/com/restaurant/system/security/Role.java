@@ -1,4 +1,8 @@
 package com.restaurant.system.security;
 
-public class Role {
+public enum Role {
+    ADMIN,
+    MANAGER,
+    WAITER,
+    CLIENT
 }

@@ -1,6 +1,6 @@
 package com.restaurant.system.dto;
 
-import com.restaurant.system.entity.enums.OrderStatus;
+import com.restaurant.system.entity.enums.SupplyStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,14 +14,15 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderDTO {
+public class SupplyDTO {
     private Long id;
-    private BigDecimal total;
-    private OrderStatus status;
-    private Long clientId;
-    private Long reservationId;
+    private OffsetDateTime supplyTime;
+    private Long supplierId;
+    private String supplierName;
+    private SupplyStatus status;
+    private BigDecimal totalCost;
     private String notes;
-    private Long createdByUserId;
+    private Long receivedByUserId;
     private OffsetDateTime createdAt;
-    private List<OrderItemDTO> items;  // Вложенные объекты
+    private List<SupplyItemDTO> items;
 }
