@@ -64,10 +64,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public List<OrderDTO> getOrdersByClientId(Long clientId) {
-        return orderRepository.findByClientId(clientId).stream()
+        return orderRepository.findByClient_Id(clientId)  // ← измени
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
+
 
     @Override
     @Transactional(readOnly = true)

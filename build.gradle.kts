@@ -33,9 +33,14 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
 
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+    implementation("org.modelmapper:modelmapper:3.1.1")
 
-	compileOnly("org.projectlombok:lombok")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
+
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+
+    compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

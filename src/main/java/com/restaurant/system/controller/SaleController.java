@@ -2,6 +2,7 @@ package com.restaurant.system.controller;
 
 import com.restaurant.system.dto.SaleDTO;
 import com.restaurant.system.service.SaleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class SaleController {
     private final SaleService saleService;
 
     @PostMapping
-    public ResponseEntity<SaleDTO> createSale(@RequestBody SaleDTO saleDTO) {
+    public ResponseEntity<SaleDTO> createSale(@Valid  @RequestBody SaleDTO saleDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(saleService.createSale(saleDTO));
     }

@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    List<Reservation> findByClientId(Long clientId);
+    List<Reservation> findByClient_Id(Long clientId);
     List<Reservation> findByStatus(ReservationStatus status);
 
     @Query("SELECT r FROM Reservation r WHERE r.table.id = :tableId " +

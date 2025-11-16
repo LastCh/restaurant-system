@@ -31,13 +31,17 @@ public class Ingredient implements Serializable {
     private String unit;
 
     @Column(name = "stock_quantity", nullable = false, precision = 12, scale = 3)
+    @Builder.Default
     private BigDecimal stockQuantity = BigDecimal.ZERO;
 
     @Column(name = "cost_per_unit", precision = 12, scale = 4)
+    @Builder.Default
     private BigDecimal costPerUnit = BigDecimal.ZERO;
 
     @Column(name = "min_stock_level", precision = 12, scale = 3)
+    @Builder.Default
     private BigDecimal minStockLevel = BigDecimal.ZERO;
+
 
     @OneToMany(mappedBy = "ingredient", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @Builder.Default

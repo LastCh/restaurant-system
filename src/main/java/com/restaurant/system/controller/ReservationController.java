@@ -3,6 +3,7 @@ package com.restaurant.system.controller;
 import com.restaurant.system.dto.ReservationDTO;
 import com.restaurant.system.entity.enums.ReservationStatus;
 import com.restaurant.system.service.ReservationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservationDTO) {
+    public ResponseEntity<ReservationDTO> createReservation(@Valid  @RequestBody ReservationDTO reservationDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(reservationService.createReservation(reservationDTO));
     }
@@ -57,7 +58,7 @@ public class ReservationController {
     @PutMapping("/{id}")
     public ResponseEntity<ReservationDTO> updateReservation(
             @PathVariable Long id,
-            @RequestBody ReservationDTO reservationDTO) {
+            @Valid @RequestBody ReservationDTO reservationDTO) {
         return ResponseEntity.ok(reservationService.updateReservation(id, reservationDTO));
     }
 

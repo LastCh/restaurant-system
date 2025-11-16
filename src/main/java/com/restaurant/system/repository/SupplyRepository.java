@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
-    List<Supply> findBySupplierId(Long supplierId);
+    List<Supply> findBySupplier_Id(Long supplierId);
     List<Supply> findByStatus(SupplyStatus status);
 }

@@ -2,6 +2,7 @@ package com.restaurant.system.controller;
 
 import com.restaurant.system.dto.DishDTO;
 import com.restaurant.system.service.DishService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class DishController {
     private final DishService dishService;
 
     @PostMapping
-    public ResponseEntity<DishDTO> createDish(@RequestBody DishDTO dishDTO) {
+    public ResponseEntity<DishDTO> createDish(@Valid @RequestBody DishDTO dishDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(dishService.createDish(dishDTO));
     }
@@ -52,7 +53,7 @@ public class DishController {
     @PutMapping("/{id}")
     public ResponseEntity<DishDTO> updateDish(
             @PathVariable Long id,
-            @RequestBody DishDTO dishDTO) {
+            @Valid @RequestBody DishDTO dishDTO) {
         return ResponseEntity.ok(dishService.updateDish(id, dishDTO));
     }
 

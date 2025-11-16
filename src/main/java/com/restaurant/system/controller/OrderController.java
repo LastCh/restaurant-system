@@ -4,6 +4,7 @@ import com.restaurant.system.dto.OrderDTO;
 import com.restaurant.system.dto.OrderItemDTO;
 import com.restaurant.system.entity.enums.OrderStatus;
 import com.restaurant.system.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid  @RequestBody OrderDTO orderDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.createOrder(orderDTO));
     }
@@ -61,7 +62,7 @@ public class OrderController {
     @PostMapping("/{orderId}/items")
     public ResponseEntity<OrderItemDTO> addItemToOrder(
             @PathVariable Long orderId,
-            @RequestBody OrderItemDTO itemDTO) {
+            @Valid @RequestBody OrderItemDTO itemDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.addItemToOrder(orderId, itemDTO));
     }

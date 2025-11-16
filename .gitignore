@@ -1,11 +1,22 @@
+# Build
 HELP.md
-.gradle
+.gradle/
 build/
+target/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.code-workspace
+out/
+
+# STS
 .apt_generated
 .classpath
 .factorypath
@@ -14,29 +25,36 @@ build/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
-/nbproject/private/
+# NetBeans
+/nbproject/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
-
+# Secrets & Environment
 .env
 .env.local
 .env.*.local
+
+# Database
 postgres-data/
+
+# Maven & Build artifacts
+.m2/
+*.jar
+*.war
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Editor temp
+*.swp
+*.swo
+*~

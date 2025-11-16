@@ -2,6 +2,7 @@ package com.restaurant.system.controller;
 
 import com.restaurant.system.dto.IngredientDTO;
 import com.restaurant.system.service.IngredientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     @PostMapping
-    public ResponseEntity<IngredientDTO> createIngredient(@RequestBody IngredientDTO ingredientDTO) {
+    public ResponseEntity<IngredientDTO> createIngredient(@Valid  @RequestBody IngredientDTO ingredientDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ingredientService.createIngredient(ingredientDTO));
     }
@@ -43,7 +44,7 @@ public class IngredientController {
     @PutMapping("/{id}")
     public ResponseEntity<IngredientDTO> updateIngredient(
             @PathVariable Long id,
-            @RequestBody IngredientDTO ingredientDTO) {
+            @Valid @RequestBody IngredientDTO ingredientDTO) {
         return ResponseEntity.ok(ingredientService.updateIngredient(id, ingredientDTO));
     }
 

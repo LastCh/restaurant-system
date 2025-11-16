@@ -4,6 +4,7 @@ import com.restaurant.system.dto.SupplyDTO;
 import com.restaurant.system.dto.SupplyItemDTO;
 import com.restaurant.system.entity.enums.SupplyStatus;
 import com.restaurant.system.service.SupplyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class SupplyController {
     private final SupplyService supplyService;
 
     @PostMapping
-    public ResponseEntity<SupplyDTO> createSupply(@RequestBody SupplyDTO supplyDTO) {
+    public ResponseEntity<SupplyDTO> createSupply(@Valid  @RequestBody SupplyDTO supplyDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(supplyService.createSupply(supplyDTO));
     }
@@ -49,7 +50,7 @@ public class SupplyController {
     @PutMapping("/{id}")
     public ResponseEntity<SupplyDTO> updateSupply(
             @PathVariable Long id,
-            @RequestBody SupplyDTO supplyDTO) {
+            @Valid @RequestBody SupplyDTO supplyDTO) {
         return ResponseEntity.ok(supplyService.updateSupply(id, supplyDTO));
     }
 

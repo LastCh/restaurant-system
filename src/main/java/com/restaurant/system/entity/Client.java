@@ -44,4 +44,15 @@ public class Client implements Serializable {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Order> orders;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = OffsetDateTime.now();
+        updatedAt = OffsetDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = OffsetDateTime.now();
+    }
 }

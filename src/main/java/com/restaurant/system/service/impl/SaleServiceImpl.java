@@ -55,8 +55,9 @@ public class SaleServiceImpl implements SaleService {
     @Override
     @Transactional(readOnly = true)
     public Optional<SaleDTO> getSaleByOrderId(Long orderId) {
-        return saleRepository.findByOrderId(orderId).map(this::toDTO);
+        return saleRepository.findByOrder_Id(orderId).map(this::toDTO);  // ← измени
     }
+
 
     @Override
     @Transactional(readOnly = true)

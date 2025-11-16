@@ -70,10 +70,12 @@ public class SupplyServiceImpl implements SupplyService {
     @Override
     @Transactional(readOnly = true)
     public List<SupplyDTO> getSuppliesBySupplierId(Long supplierId) {
-        return supplyRepository.findBySupplierId(supplierId).stream()
+        return supplyRepository.findBySupplier_Id(supplierId)  // ← измени
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public SupplyDTO updateSupply(Long id, SupplyDTO supplyDTO) {

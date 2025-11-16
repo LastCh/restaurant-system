@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -58,6 +59,21 @@ public class Order implements Serializable {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    @Transactional
+    public Long getClientId() {
+        return client != null ? client.getId() : null;
+    }
+
+    @Transactional
+    public Long getReservationId() {
+        return reservation != null ? reservation.getId() : null;
+    }
+
+    @Transactional
+    public Long getCreatedByUserId() {
+        return createdBy != null ? createdBy.getId() : null;
+    }
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;

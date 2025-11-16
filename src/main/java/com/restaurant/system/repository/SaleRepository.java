@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface SaleRepository extends JpaRepository<Sale, Long> {
-    Optional<Sale> findByOrderId(Long orderId);
+    Optional<Sale> findByOrder_Id(Long orderId);
     List<Sale> findBySaleTimeBetween(OffsetDateTime start, OffsetDateTime end);
 }

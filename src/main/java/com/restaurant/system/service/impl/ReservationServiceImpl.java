@@ -82,10 +82,12 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional(readOnly = true)
     public List<ReservationDTO> getReservationsByClientId(Long clientId) {
-        return reservationRepository.findByClientId(clientId).stream()
+        return reservationRepository.findByClient_Id(clientId)  // ← измени
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     @Transactional(readOnly = true)
