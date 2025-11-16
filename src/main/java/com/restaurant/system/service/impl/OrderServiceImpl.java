@@ -14,6 +14,10 @@ import com.restaurant.system.repository.OrderItemRepository;
 import com.restaurant.system.repository.DishRepository;
 import com.restaurant.system.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,29 +59,32 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDTO> getAllOrders() {
-        return orderRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<OrderDTO> getAllOrders(int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return orderRepository.findAll(pageable).map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDTO> getOrdersByClientId(Long clientId) {
-        return orderRepository.findByClient_Id(clientId)  // ← измени
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<OrderDTO> getOrdersByClientId(Long clientId, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return orderRepository.findByClient_Id(clientId, pageable).map(this::toDTO);
     }
-
-
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDTO> getOrdersByStatus(OrderStatus status) {
-        return orderRepository.findByStatus(status).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<OrderDTO> getOrdersByStatus(OrderStatus status, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return orderRepository.findByStatus(status, pageable).map(this::toDTO);
     }
 
     @Override

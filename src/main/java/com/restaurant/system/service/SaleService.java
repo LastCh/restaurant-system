@@ -1,15 +1,21 @@
 package com.restaurant.system.service;
 
 import com.restaurant.system.dto.SaleDTO;
+import org.springframework.data.domain.Page;
+
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface SaleService {
     SaleDTO createSale(SaleDTO saleDTO);
+
     Optional<SaleDTO> getSaleById(Long id);
-    List<SaleDTO> getAllSales();
+
+    Page<SaleDTO> getAllSales(int page, int size, String sortBy, String direction);
+
     Optional<SaleDTO> getSaleByOrderId(Long orderId);
-    List<SaleDTO> getSalesBetweenDates(OffsetDateTime start, OffsetDateTime end);
+
+    Page<SaleDTO> getSalesBetweenDates(OffsetDateTime start, OffsetDateTime end, int page, int size, String sortBy, String direction);
+
     void deleteSale(Long id);
 }

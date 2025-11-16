@@ -14,6 +14,10 @@ import com.restaurant.system.repository.SupplierRepository;
 import com.restaurant.system.repository.IngredientRepository;
 import com.restaurant.system.service.SupplyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,29 +57,33 @@ public class SupplyServiceImpl implements SupplyService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SupplyDTO> getAllSupplies() {
-        return supplyRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<SupplyDTO> getAllSupplies(int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return supplyRepository.findAll(pageable).map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SupplyDTO> getSuppliesByStatus(SupplyStatus status) {
-        return supplyRepository.findByStatus(status).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<SupplyDTO> getSuppliesByStatus(SupplyStatus status, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return supplyRepository.findByStatus(status, pageable).map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SupplyDTO> getSuppliesBySupplierId(Long supplierId) {
-        return supplyRepository.findBySupplier_Id(supplierId)  // ← измени
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<SupplyDTO> getSuppliesBySupplierId(Long supplierId, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return supplyRepository.findBySupplier_Id(supplierId, pageable).map(this::toDTO);
     }
-
 
     @Override
     public SupplyDTO updateSupply(Long id, SupplyDTO supplyDTO) {

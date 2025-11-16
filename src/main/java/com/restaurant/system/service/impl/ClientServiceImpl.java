@@ -6,6 +6,10 @@ import com.restaurant.system.exception.NotFoundException;
 import com.restaurant.system.repository.ClientRepository;
 import com.restaurant.system.service.ClientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +48,13 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ClientDTO> getAllClients() {
-        return clientRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<ClientDTO> getAllClients(int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return clientRepository.findAll(pageable).map(this::toDTO);
     }
 
     @Override

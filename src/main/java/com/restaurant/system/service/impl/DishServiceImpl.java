@@ -6,6 +6,10 @@ import com.restaurant.system.exception.NotFoundException;
 import com.restaurant.system.repository.DishRepository;
 import com.restaurant.system.service.DishService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,34 +53,43 @@ public class DishServiceImpl implements DishService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DishDTO> getAllDishes() {
-        return dishRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<DishDTO> getAllDishes(int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return dishRepository.findAll(pageable).map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<DishDTO> getDishesByCategory(String category) {
-        return dishRepository.findByCategory(category).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<DishDTO> getDishesByCategory(String category, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return dishRepository.findByCategory(category, pageable).map(this::toDTO);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DishDTO> getAvailableDishes(int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return dishRepository.findByIsAvailableTrue(pageable).map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<DishDTO> getAvailableDishes() {
-        return dishRepository.findByIsAvailableTrue().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<DishDTO> getAvailableDishesByCategory(String category) {
-        return dishRepository.findByCategoryAndIsAvailableTrue(category).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<DishDTO> getAvailableDishesByCategory(String category, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return dishRepository.findByCategoryAndIsAvailableTrue(category, pageable).map(this::toDTO);
     }
 
     @Override

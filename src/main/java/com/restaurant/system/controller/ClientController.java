@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +37,13 @@ public class ClientController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all clients")
-    public ResponseEntity<List<ClientDTO>> getAllClients() {
-        return ResponseEntity.ok(clientService.getAllClients());
+    @Operation(summary = "Get all clients with pagination")
+    public ResponseEntity<Page<ClientDTO>> getAllClients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        return ResponseEntity.ok(clientService.getAllClients(page, size, sortBy, direction));
     }
 
     @PutMapping("/{id}")

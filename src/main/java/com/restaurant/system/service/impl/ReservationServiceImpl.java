@@ -11,6 +11,10 @@ import com.restaurant.system.repository.RestaurantTableRepository;
 import com.restaurant.system.repository.ClientRepository;
 import com.restaurant.system.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,28 +77,32 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReservationDTO> getAllReservations() {
-        return reservationRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReservationDTO> getAllReservations(int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return reservationRepository.findAll(pageable).map(this::toDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReservationDTO> getReservationsByClientId(Long clientId) {
-        return reservationRepository.findByClient_Id(clientId)  // ← измени
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReservationDTO> getReservationsByClientId(Long clientId, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return reservationRepository.findByClient_Id(clientId, pageable).map(this::toDTO);
     }
-
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReservationDTO> getReservationsByStatus(ReservationStatus status) {
-        return reservationRepository.findByStatus(status).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public Page<ReservationDTO> getReservationsByStatus(ReservationStatus status, int page, int size, String sortBy, String direction) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return reservationRepository.findByStatus(status, pageable).map(this::toDTO);
     }
 
     @Override
