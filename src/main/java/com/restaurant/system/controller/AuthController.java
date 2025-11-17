@@ -26,14 +26,13 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
-    // Register new user (CLIENT role by default)
     @PostMapping("/signup")
     @Operation(summary = "Register a new client")
     public ResponseEntity<?> signup(@Valid @RequestBody SignUpRequest request) {
         log.info("New signup request for username: {}", request.getUsername());
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            log.warn("Username already exists: {}", request.getUsername());
+            log.warn("Signup failed - username already exists: {}", request.getUsername());
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ErrorResponse("Username already exists"));
         }
@@ -54,26 +53,24 @@ public class AuthController {
                 .body(new MessageResponse("User registered successfully. You can now login."));
     }
 
-    // Authenticate user and return access + refresh tokens
     @PostMapping("/signin")
     @Operation(summary = "User login")
     public ResponseEntity<?> signin(@Valid @RequestBody SignInRequest request) {
-        log.info("Login request for username: {}", request.getUsername());
+        log.info("Login attempt for username: {}", request.getUsername());
 
         User user = userRepository.findByUsernameAndEnabledTrue(request.getUsername())
                 .orElse(null);
 
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.warn("Invalid login attempt for username: {}", request.getUsername());
+            log.warn("Failed login attempt for username: {}", request.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Invalid username or password"));
         }
 
-        // Generate both access and refresh tokens
         String accessToken = jwtProvider.generateAccessToken(user.getUsername(), user.getRole().toString());
         String refreshToken = jwtProvider.generateRefreshToken(user.getUsername());
 
-        log.info("User logged in successfully: {}", request.getUsername());
+        log.info("User logged in successfully: {} (role: {})", request.getUsername(), user.getRole());
 
         return ResponseEntity.ok(JwtResponse.builder()
                 .accessToken(accessToken)
@@ -86,7 +83,6 @@ public class AuthController {
                 .build());
     }
 
-    // Refresh access token using refresh token
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token")
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
@@ -94,14 +90,12 @@ public class AuthController {
 
         String refreshToken = request.getRefreshToken();
 
-        // Validate refresh token
         if (!jwtProvider.validateRefreshToken(refreshToken)) {
             log.warn("Invalid or expired refresh token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("Invalid or expired refresh token"));
         }
 
-        // Extract username from refresh token
         String username = jwtProvider.getUsernameFromRefreshToken(refreshToken);
         if (username == null) {
             log.error("Failed to extract username from refresh token");
@@ -109,19 +103,16 @@ public class AuthController {
                     .body(new ErrorResponse("Invalid refresh token"));
         }
 
-        // Verify user still exists and is enabled
         User user = userRepository.findByUsernameAndEnabledTrue(username)
                 .orElse(null);
 
         if (user == null) {
-            log.warn("User not found or disabled: {}", username);
+            log.warn("Refresh token used for non-existent or disabled user: {}", username);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse("User not found or disabled"));
         }
 
-        // Generate new access token
         String newAccessToken = jwtProvider.generateAccessToken(user.getUsername(), user.getRole().toString());
-
         log.info("Access token refreshed successfully for user: {}", username);
 
         return ResponseEntity.ok(RefreshTokenResponse.builder()
@@ -131,7 +122,6 @@ public class AuthController {
                 .build());
     }
 
-    // Validate access token
     @PostMapping("/validate")
     @Operation(summary = "Validate JWT access token")
     public ResponseEntity<?> validateToken(@Valid @RequestBody TokenValidationRequest request) {
@@ -140,9 +130,11 @@ public class AuthController {
         if (isValid) {
             String username = jwtProvider.getUsernameFromAccessToken(request.getToken());
             String role = jwtProvider.getRoleFromAccessToken(request.getToken());
+            log.debug("Token validated successfully for user: {}", username);
             return ResponseEntity.ok(new TokenValidationResponse(true, username, role));
         }
 
+        log.debug("Token validation failed");
         return ResponseEntity.ok(new TokenValidationResponse(false, null, null));
     }
 }
