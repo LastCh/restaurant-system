@@ -2,8 +2,6 @@ package com.restaurant.system.config;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
-import io.github.bucket4j.Refill;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +18,6 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
 
-    // 5 attempts per 15 minutes for auth endpoints
-    private final Bandwidth authBandwidth = Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(15)));
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestURI = request.getRequestURI();
@@ -30,9 +25,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         // Apply rate limiting only to auth endpoints
         if (requestURI.contains("/api/auth/signin") || requestURI.contains("/api/auth/refresh")) {
             String clientIP = getClientIP(request);
-            Bucket bucket = cache.computeIfAbsent(clientIP, k -> Bucket4j.builder()
-                    .addLimit(authBandwidth)
-                    .build());
+            Bucket bucket = cache.computeIfAbsent(clientIP, k -> createBucket());
 
             if (bucket.tryConsume(1)) {
                 return true;
@@ -50,6 +43,18 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         }
 
         return true;
+    }
+
+    // Create bucket with 5 attempts per 15 minutes
+    private Bucket createBucket() {
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(5)
+                .refillIntervally(5, Duration.ofMinutes(15))
+                .build();
+
+        return Bucket.builder()
+                .addLimit(limit)
+                .build();
     }
 
     // Get client IP address (handles proxies)
