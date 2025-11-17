@@ -47,7 +47,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         Long lowStockItems = ingredientRepository.countLowStockItems();
         if (lowStockItems == null) lowStockItems = 0L;
 
-        Long pendingOrders = orderRepository.countByStatus(OrderStatus.PENDING);
+        Long pendingOrders = orderRepository.countByStatus(OrderStatus.PENDING.name());
         if (pendingOrders == null) pendingOrders = 0L;
 
         return DashboardStatsDTO.builder()
@@ -59,6 +59,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .pendingOrders(pendingOrders)
                 .build();
     }
+
 
     @Override
     public Map<String, Object> getSalesStats(LocalDate from, LocalDate to) {
