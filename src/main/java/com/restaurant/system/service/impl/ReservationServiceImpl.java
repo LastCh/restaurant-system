@@ -5,6 +5,7 @@ import com.restaurant.system.entity.Reservation;
 import com.restaurant.system.entity.RestaurantTable;
 import com.restaurant.system.entity.Client;
 import com.restaurant.system.entity.enums.ReservationStatus;
+import com.restaurant.system.exception.ConflictException;
 import com.restaurant.system.exception.NotFoundException;
 import com.restaurant.system.repository.ReservationRepository;
 import com.restaurant.system.repository.RestaurantTableRepository;
@@ -34,10 +35,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
-        if (reservationDTO.getReservationTime() == null) {
-            throw new IllegalArgumentException("Reservation time cannot be empty");
-        }
-
         Client client = clientRepository.findById(reservationDTO.getClientId())
                 .orElseThrow(() -> new NotFoundException("Client not found"));
 
@@ -52,7 +49,7 @@ public class ReservationServiceImpl implements ReservationService {
                 );
 
         if (!conflictingReservations.isEmpty()) {
-            throw new IllegalArgumentException("The table is occupied at the indicated time");
+            throw new ConflictException("Table is already reserved for this time slot");
         }
 
         Reservation reservation = new Reservation();
@@ -128,11 +125,19 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void deleteReservation(Long id) {
-        if (!reservationRepository.existsById(id)) {
-            throw new NotFoundException("Reservations not found");
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Reservation not found"));
+
+        // Business logic: cannot delete past active reservation
+        if (reservation.getStatus() == ReservationStatus.ACTIVE &&
+                reservation.getReservationTime().isBefore(OffsetDateTime.now())) {
+            throw new ConflictException("Cannot delete past active reservation");
         }
+
         reservationRepository.deleteById(id);
     }
+
+
 
     @Override
     @Transactional(readOnly = true)

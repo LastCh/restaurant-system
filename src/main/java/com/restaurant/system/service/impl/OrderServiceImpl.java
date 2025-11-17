@@ -7,6 +7,8 @@ import com.restaurant.system.entity.Order;
 import com.restaurant.system.entity.OrderItem;
 import com.restaurant.system.entity.Dish;
 import com.restaurant.system.entity.enums.OrderStatus;
+import com.restaurant.system.exception.BadRequestException;
+import com.restaurant.system.exception.ConflictException;
 import com.restaurant.system.exception.NotFoundException;
 import com.restaurant.system.repository.ClientRepository;
 import com.restaurant.system.repository.OrderRepository;
@@ -50,7 +52,6 @@ public class OrderServiceImpl implements OrderService {
         return toDTO(orderRepository.save(order));
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public Optional<OrderDTO> getOrderById(Long id) {
@@ -91,9 +92,21 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO updateOrderStatus(Long id, OrderStatus status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        // Business logic: cannot change completed order status
+        if (order.getStatus() == OrderStatus.COMPLETED && status != OrderStatus.COMPLETED) {
+            throw new ConflictException("Cannot change status of completed order");
+        }
+
+        // Business logic: cannot mark empty order as completed
+        if (status == OrderStatus.COMPLETED && order.getOrderItems().isEmpty()) {
+            throw new BadRequestException("Cannot complete order without items");
+        }
+
         order.setStatus(status);
         return toDTO(orderRepository.save(order));
     }
+
 
     @Override
     public void deleteOrder(Long id) {
@@ -133,14 +146,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void removeItemFromOrder(Long orderId, Long itemId) {
         OrderItem item = orderItemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Dish not found"));
+                .orElseThrow(() -> new NotFoundException("Order item not found"));
 
         if (!item.getOrder().getId().equals(orderId)) {
-            throw new IllegalArgumentException("Dish does not belong to this order");
+            throw new BadRequestException("Item does not belong to this order");
         }
 
         orderItemRepository.deleteById(itemId);
     }
+
 
     @Override
     public OrderDTO completeOrder(Long id) {

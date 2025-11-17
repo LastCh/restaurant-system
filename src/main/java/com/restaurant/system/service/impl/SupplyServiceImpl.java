@@ -7,6 +7,8 @@ import com.restaurant.system.entity.SupplyItem;
 import com.restaurant.system.entity.Supplier;
 import com.restaurant.system.entity.Ingredient;
 import com.restaurant.system.entity.enums.SupplyStatus;
+import com.restaurant.system.exception.BadRequestException;
+import com.restaurant.system.exception.ConflictException;
 import com.restaurant.system.exception.NotFoundException;
 import com.restaurant.system.repository.SupplyRepository;
 import com.restaurant.system.repository.SupplyItemRepository;
@@ -21,7 +23,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -137,22 +138,33 @@ public class SupplyServiceImpl implements SupplyService {
                 .orElseThrow(() -> new NotFoundException("Supply item not found"));
 
         if (!item.getSupply().getId().equals(supplyId)) {
-            throw new IllegalArgumentException("Item does not belong to this supply");
+            throw new BadRequestException("Item does not belong to this supply");
         }
 
         supplyItemRepository.deleteById(itemId);
     }
+
 
     @Override
     public SupplyDTO confirmSupply(Long id) {
         Supply supply = supplyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Supply not found"));
 
-        supply.setStatus(SupplyStatus.CONFIRMED);
-        // DB trigger will: add quantities to ingredients, calculate total_cost
+        // Business logic: cannot confirm already confirmed supply
+        if (supply.getStatus() == SupplyStatus.CONFIRMED) {
+            throw new ConflictException("Supply is already confirmed");
+        }
 
+        // Business logic: cannot confirm supply without items
+        List<SupplyItem> items = supplyItemRepository.findBySupplyId(id);
+        if (items.isEmpty()) {
+            throw new BadRequestException("Cannot confirm supply without items");
+        }
+
+        supply.setStatus(SupplyStatus.CONFIRMED);
         return toDTO(supplyRepository.save(supply));
     }
+
 
     private SupplyDTO toDTO(Supply supply) {
         List<SupplyItemDTO> items = supplyItemRepository.findBySupplyId(supply.getId())

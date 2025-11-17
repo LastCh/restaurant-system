@@ -2,6 +2,7 @@ package com.restaurant.system.service.impl;
 
 import com.restaurant.system.dto.IngredientDTO;
 import com.restaurant.system.entity.Ingredient;
+import com.restaurant.system.exception.BadRequestException;
 import com.restaurant.system.exception.NotFoundException;
 import com.restaurant.system.repository.IngredientRepository;
 import com.restaurant.system.service.IngredientService;
@@ -27,13 +28,7 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     public IngredientDTO createIngredient(IngredientDTO ingredientDTO) {
-        if (ingredientDTO.getName() == null || ingredientDTO.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("The ingredient name cannot be empty");
-        }
-        if (ingredientDTO.getUnit() == null || ingredientDTO.getUnit().trim().isEmpty()) {
-            throw new IllegalArgumentException("The unit of measurement cannot be empty");
-        }
-
+        // DTO validation handles @NotBlank, so remove manual checks
         Ingredient ingredient = new Ingredient();
         ingredient.setName(ingredientDTO.getName());
         ingredient.setUnit(ingredientDTO.getUnit());
@@ -46,6 +41,7 @@ public class IngredientServiceImpl implements IngredientService {
 
         return toDTO(ingredientRepository.save(ingredient));
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -108,12 +104,13 @@ public class IngredientServiceImpl implements IngredientService {
         BigDecimal newStock = ingredient.getStockQuantity().add(quantity);
 
         if (newStock.signum() < 0) {
-            throw new IllegalArgumentException("Not enough ingredient in stock");
+            throw new BadRequestException("Not enough ingredient in stock");
         }
 
         ingredient.setStockQuantity(newStock);
         ingredientRepository.save(ingredient);
     }
+
 
     private IngredientDTO toDTO(Ingredient ingredient) {
         return IngredientDTO.builder()

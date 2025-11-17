@@ -2,6 +2,7 @@ package com.restaurant.system.service.impl;
 
 import com.restaurant.system.dto.DishDTO;
 import com.restaurant.system.entity.Dish;
+import com.restaurant.system.exception.BadRequestException;
 import com.restaurant.system.exception.NotFoundException;
 import com.restaurant.system.repository.DishRepository;
 import com.restaurant.system.service.DishService;
@@ -26,11 +27,9 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public DishDTO createDish(DishDTO dishDTO) {
-        if (dishDTO.getName() == null || dishDTO.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("The dish name cannot be empty");
-        }
-        if (dishDTO.getPrice() == null || dishDTO.getPrice().signum() <= 0) {
-            throw new IllegalArgumentException("The price must be greater than zero");
+        // Validation is now handled by @Valid in controller, but keep business logic validation
+        if (dishDTO.getPrice() != null && dishDTO.getPrice().signum() <= 0) {
+            throw new BadRequestException("Price must be greater than zero");
         }
 
         Dish dish = new Dish();
