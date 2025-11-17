@@ -5,6 +5,7 @@ import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -17,6 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+
+    @Value("${rate-limit.auth-attempts:5}")
+    private int authAttempts;
+
+    @Value("${rate-limit.auth-duration-minutes:15}")
+    private int authDurationMinutes;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -45,11 +52,13 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    // Create bucket with 5 attempts per 15 minutes
+    // Create bucket with configurable attempts and duration
     private Bucket createBucket() {
+        log.info("Creating bucket with {} attempts per {} minutes", authAttempts, authDurationMinutes);
+
         Bandwidth limit = Bandwidth.builder()
-                .capacity(5)
-                .refillIntervally(5, Duration.ofMinutes(15))
+                .capacity(authAttempts)
+                .refillIntervally(authAttempts, Duration.ofMinutes(authDurationMinutes))
                 .build();
 
         return Bucket.builder()
