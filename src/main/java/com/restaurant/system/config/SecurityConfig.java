@@ -22,6 +22,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -57,10 +58,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+                        // Swagger UI
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/dishes/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
                         // Admin only endpoints
@@ -71,16 +74,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/supplies/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/ingredients/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
 
-                        // Staff endpoints (ADMIN, MANAGER, WAITER)
+                        // Staff endpoints
                         .requestMatchers("/api/orders/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
                         .requestMatchers("/api/sales/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/tables/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
 
-                        // Client + Staff endpoints
+                        // Authenticated endpoints
                         .requestMatchers("/api/reservations/**").authenticated()
                         .requestMatchers("/api/clients/**").authenticated()
 
-                        // All other requests require authentication
+                        // All other
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -96,17 +99,30 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+
+        // Разрешаем конкретные порты для разработки
+        List<String> allowedOrigins = Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:8080",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:8080"
+        );
+
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
                 "Accept",
                 "X-Requested-With",
-                "Cache-Control"
+                "Cache-Control",
+                "Origin"
         ));
         configuration.setExposedHeaders(Arrays.asList(
                 "Authorization",
@@ -119,4 +135,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }
