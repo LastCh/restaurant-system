@@ -3,7 +3,6 @@ package com.restaurant.system.entity;
 import com.restaurant.system.entity.enums.SupplyStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;

@@ -2,7 +2,6 @@ package com.restaurant.system.service;
 
 import com.restaurant.system.dto.SaleDTO;
 import org.springframework.data.domain.Page;
-
 import java.time.OffsetDateTime;
 import java.util.Optional;
 

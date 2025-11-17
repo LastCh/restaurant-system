@@ -3,7 +3,6 @@ package com.restaurant.system.entity;
 import com.restaurant.system.entity.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;

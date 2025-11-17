@@ -29,7 +29,6 @@ public class DishController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get dish by ID")
     public ResponseEntity<DishDTO> getDishById(@PathVariable Long id) {
         return dishService.getDishById(id)
@@ -38,7 +37,6 @@ public class DishController {
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all dishes with pagination")
     public ResponseEntity<Page<DishDTO>> getAllDishes(
             @RequestParam(defaultValue = "0") int page,
@@ -49,7 +47,6 @@ public class DishController {
     }
 
     @GetMapping("/category/{category}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get dishes by category")
     public ResponseEntity<Page<DishDTO>> getDishesByCategory(
             @PathVariable String category,
@@ -61,7 +58,6 @@ public class DishController {
     }
 
     @GetMapping("/available")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get available dishes")
     public ResponseEntity<Page<DishDTO>> getAvailableDishes(
             @RequestParam(defaultValue = "0") int page,
@@ -72,7 +68,6 @@ public class DishController {
     }
 
     @GetMapping("/available/category/{category}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get available dishes by category")
     public ResponseEntity<Page<DishDTO>> getAvailableDishesByCategory(
             @PathVariable String category,

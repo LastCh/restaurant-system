@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;

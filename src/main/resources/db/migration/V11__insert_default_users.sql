@@ -4,9 +4,9 @@
 
 INSERT INTO users (username, password, full_name, phone, role, enabled, created_at, updated_at)
 VALUES
-    ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'System Administrator', '+79999999999', 'ADMIN', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('manager', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Restaurant Manager', '+79999999998', 'MANAGER', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    ('waiter', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Waiter', '+79999999997', 'WAITER', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    ('admin', '$2a$12$GqvNcH8lAOgDI/S8AN.USeC8BbUCmkAt/eaKnaEDdqcKYbTle2wTa', 'System Administrator', '+79999999999', 'ADMIN', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('manager', '$2a$12$GqvNcH8lAOgDI/S8AN.USeC8BbUCmkAt/eaKnaEDdqcKYbTle2wTa', 'Restaurant Manager', '+79999999998', 'MANAGER', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('waiter', '$2a$12$GqvNcH8lAOgDI/S8AN.USeC8BbUCmkAt/eaKnaEDdqcKYbTle2wTa', 'Waiter', '+79999999997', 'WAITER', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (username) DO NOTHING;
 
 INSERT INTO clients (full_name, phone, email, created_at, updated_at)

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restaurant.system.security.Role;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 

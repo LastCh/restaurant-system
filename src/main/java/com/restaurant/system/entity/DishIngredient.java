@@ -2,7 +2,6 @@ package com.restaurant.system.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 
