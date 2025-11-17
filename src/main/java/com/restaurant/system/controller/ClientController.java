@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/clients")
@@ -22,6 +21,7 @@ public class ClientController {
     private final ClientService clientService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Create a new client")
     public ResponseEntity<ClientDTO> createClient(@Valid @RequestBody ClientDTO clientDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -29,6 +29,7 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get client by ID")
     public ResponseEntity<ClientDTO> getClientById(@PathVariable Long id) {
         return clientService.getClientById(id)
@@ -37,6 +38,7 @@ public class ClientController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get all clients with pagination")
     public ResponseEntity<Page<ClientDTO>> getAllClients(
             @RequestParam(defaultValue = "0") int page,
@@ -47,6 +49,7 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Update client")
     public ResponseEntity<ClientDTO> updateClient(
             @PathVariable Long id,
@@ -55,6 +58,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete client")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);

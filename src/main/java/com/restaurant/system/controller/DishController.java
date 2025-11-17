@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/dishes")
@@ -22,6 +21,7 @@ public class DishController {
     private final DishService dishService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Create a new dish")
     public ResponseEntity<DishDTO> createDish(@Valid @RequestBody DishDTO dishDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -29,6 +29,7 @@ public class DishController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get dish by ID")
     public ResponseEntity<DishDTO> getDishById(@PathVariable Long id) {
         return dishService.getDishById(id)
@@ -37,6 +38,7 @@ public class DishController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all dishes with pagination")
     public ResponseEntity<Page<DishDTO>> getAllDishes(
             @RequestParam(defaultValue = "0") int page,
@@ -47,6 +49,7 @@ public class DishController {
     }
 
     @GetMapping("/category/{category}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get dishes by category")
     public ResponseEntity<Page<DishDTO>> getDishesByCategory(
             @PathVariable String category,
@@ -58,6 +61,7 @@ public class DishController {
     }
 
     @GetMapping("/available")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get available dishes")
     public ResponseEntity<Page<DishDTO>> getAvailableDishes(
             @RequestParam(defaultValue = "0") int page,
@@ -68,6 +72,7 @@ public class DishController {
     }
 
     @GetMapping("/available/category/{category}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get available dishes by category")
     public ResponseEntity<Page<DishDTO>> getAvailableDishesByCategory(
             @PathVariable String category,
@@ -79,6 +84,7 @@ public class DishController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Update dish")
     public ResponseEntity<DishDTO> updateDish(
             @PathVariable Long id,
@@ -87,6 +93,7 @@ public class DishController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete dish")
     public ResponseEntity<Void> deleteDish(@PathVariable Long id) {
         dishService.deleteDish(id);

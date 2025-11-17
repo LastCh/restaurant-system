@@ -1,5 +1,6 @@
 package com.restaurant.system.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.restaurant.system.security.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,10 +27,11 @@ public class User implements Serializable {
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     @Builder.Default
     private Role role = Role.CLIENT;
 

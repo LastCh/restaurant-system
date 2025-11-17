@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class SupplyController {
     private final SupplyService supplyService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Create a new supply")
     public ResponseEntity<SupplyDTO> createSupply(@Valid @RequestBody SupplyDTO supplyDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -31,6 +33,7 @@ public class SupplyController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get supply by ID")
     public ResponseEntity<SupplyDTO> getSupplyById(@PathVariable Long id) {
         return supplyService.getSupplyById(id)
@@ -39,6 +42,7 @@ public class SupplyController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get all supplies with pagination")
     public ResponseEntity<Page<SupplyDTO>> getAllSupplies(
             @RequestParam(defaultValue = "0") int page,
@@ -49,6 +53,7 @@ public class SupplyController {
     }
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get supplies by status")
     public ResponseEntity<Page<SupplyDTO>> getSuppliesByStatus(
             @PathVariable SupplyStatus status,
@@ -60,6 +65,7 @@ public class SupplyController {
     }
 
     @GetMapping("/supplier/{supplierId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get supplies by supplier")
     public ResponseEntity<Page<SupplyDTO>> getSuppliesBySupplierId(
             @PathVariable Long supplierId,
@@ -71,6 +77,7 @@ public class SupplyController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Update supply")
     public ResponseEntity<SupplyDTO> updateSupply(
             @PathVariable Long id,
@@ -79,6 +86,7 @@ public class SupplyController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete supply")
     public ResponseEntity<Void> deleteSupply(@PathVariable Long id) {
         supplyService.deleteSupply(id);
@@ -86,6 +94,7 @@ public class SupplyController {
     }
 
     @PostMapping("/{supplyId}/items")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Add item to supply")
     public ResponseEntity<SupplyItemDTO> addItemToSupply(
             @PathVariable Long supplyId,
@@ -95,12 +104,14 @@ public class SupplyController {
     }
 
     @GetMapping("/{supplyId}/items")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get supply items")
     public ResponseEntity<List<SupplyItemDTO>> getSupplyItems(@PathVariable Long supplyId) {
         return ResponseEntity.ok(supplyService.getSupplyItems(supplyId));
     }
 
     @DeleteMapping("/{supplyId}/items/{itemId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Remove item from supply")
     public ResponseEntity<Void> removeItemFromSupply(
             @PathVariable Long supplyId,
@@ -110,6 +121,7 @@ public class SupplyController {
     }
 
     @PutMapping("/{id}/confirm")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Confirm supply delivery")
     public ResponseEntity<SupplyDTO> confirmSupply(@PathVariable Long id) {
         return ResponseEntity.ok(supplyService.confirmSupply(id));

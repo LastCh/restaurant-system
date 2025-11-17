@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/sales")
@@ -23,6 +23,7 @@ public class SaleController {
     private final SaleService saleService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Create a new sale")
     public ResponseEntity<SaleDTO> createSale(@Valid @RequestBody SaleDTO saleDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -30,6 +31,7 @@ public class SaleController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get sale by ID")
     public ResponseEntity<SaleDTO> getSaleById(@PathVariable Long id) {
         return saleService.getSaleById(id)
@@ -38,6 +40,7 @@ public class SaleController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get all sales with pagination")
     public ResponseEntity<Page<SaleDTO>> getAllSales(
             @RequestParam(defaultValue = "0") int page,
@@ -48,6 +51,7 @@ public class SaleController {
     }
 
     @GetMapping("/order/{orderId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get sale by order ID")
     public ResponseEntity<SaleDTO> getSaleByOrderId(@PathVariable Long orderId) {
         return saleService.getSaleByOrderId(orderId)
@@ -56,6 +60,7 @@ public class SaleController {
     }
 
     @GetMapping("/between")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Get sales between dates")
     public ResponseEntity<Page<SaleDTO>> getSalesBetweenDates(
             @RequestParam OffsetDateTime start,
@@ -68,6 +73,7 @@ public class SaleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete sale")
     public ResponseEntity<Void> deleteSale(@PathVariable Long id) {
         saleService.deleteSale(id);

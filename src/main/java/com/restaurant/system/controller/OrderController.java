@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create a new order")
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO orderDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -31,6 +33,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get order by ID")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id)
@@ -39,6 +42,7 @@ public class OrderController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all orders with pagination")
     public ResponseEntity<Page<OrderDTO>> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
@@ -49,6 +53,7 @@ public class OrderController {
     }
 
     @GetMapping("/client/{clientId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get orders by client")
     public ResponseEntity<Page<OrderDTO>> getOrdersByClientId(
             @PathVariable Long clientId,
@@ -60,6 +65,7 @@ public class OrderController {
     }
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get orders by status")
     public ResponseEntity<Page<OrderDTO>> getOrdersByStatus(
             @PathVariable OrderStatus status,
@@ -71,6 +77,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Update order status")
     public ResponseEntity<OrderDTO> updateOrderStatus(
             @PathVariable Long id,
@@ -79,6 +86,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete order")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
@@ -86,6 +94,7 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/items")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Add item to order")
     public ResponseEntity<OrderItemDTO> addItemToOrder(
             @PathVariable Long orderId,
@@ -95,12 +104,14 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/items")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get order items")
     public ResponseEntity<List<OrderItemDTO>> getOrderItems(@PathVariable Long orderId) {
         return ResponseEntity.ok(orderService.getOrderItems(orderId));
     }
 
     @DeleteMapping("/{orderId}/items/{itemId}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Remove item from order")
     public ResponseEntity<Void> removeItemFromOrder(
             @PathVariable Long orderId,
@@ -110,6 +121,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Complete order")
     public ResponseEntity<OrderDTO> completeOrder(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.completeOrder(id));

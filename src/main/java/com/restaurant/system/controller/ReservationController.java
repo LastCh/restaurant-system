@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
@@ -24,6 +25,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create a new reservation")
     public ResponseEntity<ReservationDTO> createReservation(@Valid @RequestBody ReservationDTO reservationDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -31,6 +33,7 @@ public class ReservationController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get reservation by ID")
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable Long id) {
         return reservationService.getReservationById(id)
@@ -39,6 +42,7 @@ public class ReservationController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get all reservations with pagination")
     public ResponseEntity<Page<ReservationDTO>> getAllReservations(
             @RequestParam(defaultValue = "0") int page,
@@ -49,6 +53,7 @@ public class ReservationController {
     }
 
     @GetMapping("/available")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get available time slots for table")
     public ResponseEntity<List<ReservationDTO>> getAvailableSlots(
             @RequestParam Long tableId,
@@ -57,8 +62,8 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getAvailableSlots(tableId, startTime, endTime));
     }
 
-
     @GetMapping("/client/{clientId}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get reservations by client")
     public ResponseEntity<Page<ReservationDTO>> getReservationsByClientId(
             @PathVariable Long clientId,
@@ -70,6 +75,7 @@ public class ReservationController {
     }
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get reservations by status")
     public ResponseEntity<Page<ReservationDTO>> getReservationsByStatus(
             @PathVariable ReservationStatus status,
@@ -81,6 +87,7 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Update reservation")
     public ResponseEntity<ReservationDTO> updateReservation(
             @PathVariable Long id,
@@ -89,6 +96,7 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Delete reservation")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
@@ -96,6 +104,7 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Cancel reservation")
     public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
         reservationService.cancelReservation(id);

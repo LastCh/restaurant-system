@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Create a new ingredient")
     public ResponseEntity<IngredientDTO> createIngredient(@Valid @RequestBody IngredientDTO ingredientDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -30,6 +32,7 @@ public class IngredientController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get ingredient by ID")
     public ResponseEntity<IngredientDTO> getIngredientById(@PathVariable Long id) {
         return ingredientService.getIngredientById(id)
@@ -38,6 +41,7 @@ public class IngredientController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get all ingredients with pagination")
     public ResponseEntity<Page<IngredientDTO>> getAllIngredients(
             @RequestParam(defaultValue = "0") int page,
@@ -48,12 +52,14 @@ public class IngredientController {
     }
 
     @GetMapping("/low-stock")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'WAITER')")
     @Operation(summary = "Get ingredients with low stock")
     public ResponseEntity<List<IngredientDTO>> getLowStockIngredients() {
         return ResponseEntity.ok(ingredientService.getLowStockIngredients());
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Update ingredient")
     public ResponseEntity<IngredientDTO> updateIngredient(
             @PathVariable Long id,
@@ -62,6 +68,7 @@ public class IngredientController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete ingredient")
     public ResponseEntity<Void> deleteIngredient(@PathVariable Long id) {
         ingredientService.deleteIngredient(id);
@@ -69,6 +76,7 @@ public class IngredientController {
     }
 
     @PostMapping("/{id}/stock")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Update ingredient stock")
     public ResponseEntity<Void> updateStock(
             @PathVariable Long id,
