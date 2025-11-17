@@ -14,78 +14,147 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    @Value("${jwt.secret:dev-secret-key-that-must-be-at-least-256-bits-long-for-security}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration:3600000}")
+    @Value("${jwt.expiration}")
     private long jwtExpirationMs;
 
-    private SecretKey getSigningKey() {
+    @Value("${jwt.refresh-secret}")
+    private String jwtRefreshSecret;
+
+    @Value("${jwt.refresh-expiration}")
+    private long jwtRefreshExpirationMs;
+
+    //Получение ключа подписи для Access Token
+    private SecretKey getAccessTokenSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String username, String role) {
+    //Получение ключа подписи для Refresh Token
+    private SecretKey getRefreshTokenSigningKey() {
+        return Keys.hmacShaKeyFor(jwtRefreshSecret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    //Генерация Access Token (короткоживущий)
+    public String generateAccessToken(String username, String role) {
         return Jwts.builder()
                 .subject(username)
                 .claim("role", role)
+                .claim("type", "access")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .signWith(getAccessTokenSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
+    //Генерация Refresh Token (долгоживущий)
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .subject(username)
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtRefreshExpirationMs))
+                .signWith(getRefreshTokenSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    //Получение username из Access Token
+    public String getUsernameFromAccessToken(String token) {
         try {
             return Jwts.parser()
-                    .verifyWith(getSigningKey())
+                    .verifyWith(getAccessTokenSigningKey())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
                     .getSubject();
         } catch (JwtException e) {
-            log.error("Failed to extract username from token", e);
+            log.error("Error extracting username from access token: {}", e.getMessage());
             return null;
         }
     }
 
-    public String getRoleFromToken(String token) {
+    //Получение username из Refresh Token
+    public String getUsernameFromRefreshToken(String token) {
         try {
             return Jwts.parser()
-                    .verifyWith(getSigningKey())
+                    .verifyWith(getRefreshTokenSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+        } catch (JwtException e) {
+            log.error("Error extracting username from refresh token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    //Получение роли из Access Token
+    public String getRoleFromAccessToken(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(getAccessTokenSigningKey())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
                     .get("role", String.class);
         } catch (JwtException e) {
-            log.error("Failed to extract role from token", e);
+            log.error("Error extracting role from access token: {}", e.getMessage());
             return null;
         }
     }
 
-    public boolean validateToken(String token) {
+    //Валидация Access Token
+    public boolean validateAccessToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(getSigningKey())
+                    .verifyWith(getAccessTokenSigningKey())
                     .build()
                     .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.warn("JWT token is expired: {}", e.getMessage());
+            log.warn("Access token expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            log.warn("JWT token is unsupported: {}", e.getMessage());
+            log.error("Unsupported JWT token: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            log.warn("Invalid JWT token: {}", e.getMessage());
-        } catch (SignatureException e) {
-            log.warn("JWT signature validation failed: {}", e.getMessage());
+            log.error("Malformed JWT token: {}", e.getMessage());
+        } catch (SecurityException e) {
+            log.error("Invalid JWT signature: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.warn("JWT claims string is empty: {}", e.getMessage());
-        } catch (JwtException e) {
-            log.warn("JWT validation failed: {}", e.getMessage());
+            log.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;
     }
 
-    public long getExpirationMs() {
+    //Валидация Refresh Token
+    public boolean validateRefreshToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(getRefreshTokenSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.warn("Refresh token expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            log.error("Unsupported JWT token: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            log.error("Malformed JWT token: {}", e.getMessage());
+        } catch (SecurityException e) {
+            log.error("Invalid JWT signature: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.error("JWT claims string is empty: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    //Получение времени истечения Access Token
+    public long getAccessTokenExpirationMs() {
         return jwtExpirationMs;
+    }
+
+    //Получение времени истечения Refresh Token
+    public long getRefreshTokenExpirationMs() {
+        return jwtRefreshExpirationMs;
     }
 }
