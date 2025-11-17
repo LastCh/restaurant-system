@@ -39,6 +39,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    implementation("io.github.bucket4j:bucket4j-core:7.6.0")
 
     compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
