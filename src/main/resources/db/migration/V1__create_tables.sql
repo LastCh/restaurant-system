@@ -70,7 +70,7 @@ CREATE TABLE reservations (
     duration_minutes INT NOT NULL DEFAULT 90,
     party_size INT NOT NULL DEFAULT 1 CHECK (party_size > 0),
 
-    client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,  -- ⚠️ Changed from CASCADE
+    client_id BIGINT NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
     table_id BIGINT REFERENCES restaurant_tables(id) ON DELETE SET NULL,
 
     status reservation_status NOT NULL DEFAULT 'ACTIVE',
@@ -84,12 +84,12 @@ CREATE TABLE reservations (
 CREATE TABLE dishes (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description TEXT,  -- ✅ Added: description for menu
+    description TEXT,
     category VARCHAR(100),
     price NUMERIC(12,2) NOT NULL CHECK (price >= 0),
     is_available BOOLEAN NOT NULL DEFAULT true,
-    image_url VARCHAR(500),  -- ✅ Added: for UI
-    preparation_time_minutes INT DEFAULT 15,  -- ✅ Added: for kitchen planning
+    image_url VARCHAR(500),
+    preparation_time_minutes INT DEFAULT 15,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
@@ -102,7 +102,7 @@ CREATE TABLE ingredients (
     unit VARCHAR(50) NOT NULL,  -- kg, g, l, ml, piece
     stock_quantity NUMERIC(12,3) NOT NULL DEFAULT 0.000,
     cost_per_unit NUMERIC(12,4) DEFAULT 0.0000,
-    min_stock_level NUMERIC(12,3) DEFAULT 0.000,  -- ✅ Added: для уведомлений о низких остатках
+    min_stock_level NUMERIC(12,3) DEFAULT 0.000,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
@@ -129,8 +129,8 @@ CREATE TABLE orders (
     client_id BIGINT REFERENCES clients(id) ON DELETE SET NULL,
     reservation_id BIGINT REFERENCES reservations(id) ON DELETE SET NULL,
 
-    notes TEXT,  -- ✅ Added: special instructions
-    created_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- ✅ Added: who created order
+    notes TEXT,
+    created_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
@@ -156,7 +156,7 @@ CREATE TABLE sales (
     order_id BIGINT UNIQUE NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     receipt_number VARCHAR(100),
 
-    processed_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL  -- ✅ Added: кто оформил оплату
+    processed_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Suppliers
@@ -165,9 +165,9 @@ CREATE TABLE suppliers (
     name VARCHAR(255) NOT NULL,
     inn VARCHAR(100),
     phone VARCHAR(50),
-    email VARCHAR(255),  -- ✅ Added
-    address TEXT,  -- ✅ Added
-    contact_person VARCHAR(255),  -- ✅ Added
+    email VARCHAR(255),
+    address TEXT,
+    contact_person VARCHAR(255),
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
@@ -181,8 +181,8 @@ CREATE TABLE supplies (
     status supply_status NOT NULL DEFAULT 'PENDING',
     total_cost NUMERIC(14,2) DEFAULT 0.00,
 
-    notes TEXT,  -- ✅ Added
-    received_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- ✅ Added
+    notes TEXT,
+    received_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()

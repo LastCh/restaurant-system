@@ -218,11 +218,11 @@ BEGIN
         v_required_qty := rec.quantity * p_quantity;
 
         IF rec.stock_quantity < v_required_qty THEN
-            RETURN FALSE;  -- Insufficient stock
+            RETURN FALSE;
         END IF;
     END LOOP;
 
-    RETURN TRUE;  -- All ingredients available
+    RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
 
