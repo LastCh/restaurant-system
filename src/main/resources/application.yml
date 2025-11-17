@@ -15,9 +15,18 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+
 server:
   port: ${APP_PORT:8080}
 
 jwt:
-  secret: ${JWT_SECRET:dev-secret-key-that-must-be-at-least-256-bits-long-for-security}
-  expiration: ${JWT_EXPIRATION:3600000}
+  # Access token - короткоживущий (15 минут)
+  secret: ${JWT_SECRET:must-be-set-in-production-min-512-bits}
+  expiration: ${JWT_EXPIRATION:900000}  # 15 минут (было 3600000)
+
+  # Refresh token - долгоживущий (7 дней)
+  refresh-secret: ${JWT_REFRESH_SECRET:must-be-set-in-production-different-secret}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 7 дней
+
+  # Алгоритм подписания
+  algorithm: HS512
