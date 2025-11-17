@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -28,6 +29,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("endTime") OffsetDateTime endTime
     );
 
-    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.status = :status")
+    @Query(value = "SELECT COUNT(*) FROM reservations WHERE status = 'ACTIVE'", nativeQuery = true)
     Long countByStatus(@Param("status") ReservationStatus status);
 }
