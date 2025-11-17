@@ -217,12 +217,4 @@ COMMENT ON TABLE suppliers IS 'Поставщики продуктов';
 COMMENT ON TABLE supplies IS 'Поставки от поставщиков';
 COMMENT ON TABLE supply_items IS 'Позиции в поставке';
 
--- ============================================
--- ADD ADMIN
--- ============================================
-INSERT INTO users (username, password, full_name, phone, role, enabled, created_at, updated_at)
-VALUES
-    ('admin', '$2a$12$QTqZr1ZaqIg3eDtcey62nef/03aY4FO21AZF.8GTeHH.8cfJi5AXq', 'Администратор', '+79000000001', 'ADMIN', true, NOW(), NOW()),
-    ('manager', '$2a$12$QTqZr1ZaqIg3eDtcey62nef/03aY4FO21AZF.8GTeHH.8cfJi5AXq', 'Менеджер', '+79000000002', 'MANAGER', true, NOW(), NOW()),
-    ('waiter', '$2a$12$QTqZr1ZaqIg3eDtcey62nef/03aY4FO21AZF.8GTeHH.8cfJi5AXq', 'Официант', '+79000000003', 'WAITER', true, NOW(), NOW());
 -- End of V1

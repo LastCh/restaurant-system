@@ -19,10 +19,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     @Query("SELECT r FROM Reservation r WHERE r.table.id = :tableId " +
             "AND r.status = 'ACTIVE' " +
-            "AND r.reservationTime BETWEEN :startTime AND :endTime")
+            "AND r.reservationTime < :endTime " +
+            "AND (r.reservationTime + (r.durationMinutes * INTERVAL '1 minute')) > :startTime")
     List<Reservation> findActiveReservationsForTable(
             @Param("tableId") Long tableId,
             @Param("startTime") OffsetDateTime startTime,
             @Param("endTime") OffsetDateTime endTime
     );
+
+    // Statistics methods
+    Long countByStatus(ReservationStatus status);
 }

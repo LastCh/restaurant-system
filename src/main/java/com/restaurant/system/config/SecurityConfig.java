@@ -22,7 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -33,8 +32,7 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final UserDetailsServiceImpl userDetailsService;
 
-    // Read allowed origins from environment or use defaults for development
-    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:8080}")
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:8080,http://localhost:5173}")
     private String[] allowedOrigins;
 
     @Bean
@@ -59,10 +57,30 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/dishes/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+
+                        // Admin only endpoints
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/suppliers/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/supplies/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/ingredients/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
+
+                        // Staff endpoints (ADMIN, MANAGER, WAITER)
+                        .requestMatchers("/api/orders/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
+                        .requestMatchers("/api/sales/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/tables/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
+
+                        // Client + Staff endpoints
+                        .requestMatchers("/api/reservations/**").authenticated()
+                        .requestMatchers("/api/clients/**").authenticated()
+
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -81,14 +99,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // Allowed origins from environment variables
         configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
-
-        // Allowed HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // Explicitly specify allowed headers instead of "*"
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
@@ -96,17 +108,11 @@ public class SecurityConfig {
                 "X-Requested-With",
                 "Cache-Control"
         ));
-
-        // Expose specific headers to the client
         configuration.setExposedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type"
         ));
-
-        // Allow credentials (cookies, authorization headers)
         configuration.setAllowCredentials(true);
-
-        // Cache preflight response for 1 hour
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
