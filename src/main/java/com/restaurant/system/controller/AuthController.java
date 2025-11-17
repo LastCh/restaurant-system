@@ -15,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
-
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
@@ -28,6 +26,7 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
+    // Register new user (CLIENT role by default)
     @PostMapping("/signup")
     @Operation(summary = "Register a new client")
     public ResponseEntity<?> signup(@Valid @RequestBody SignUpRequest request) {
@@ -48,15 +47,14 @@ public class AuthController {
                 .enabled(true)
                 .build();
 
-
         userRepository.save(user);
-
         log.info("User registered successfully: {}", request.getUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("User registered successfully. You can now login."));
     }
 
+    // Authenticate user and return access + refresh tokens
     @PostMapping("/signin")
     @Operation(summary = "User login")
     public ResponseEntity<?> signin(@Valid @RequestBody SignInRequest request) {
@@ -71,28 +69,77 @@ public class AuthController {
                     .body(new ErrorResponse("Invalid username or password"));
         }
 
-        String token = jwtProvider.generateToken(user.getUsername(), user.getRole().toString());
+        // Generate both access and refresh tokens
+        String accessToken = jwtProvider.generateAccessToken(user.getUsername(), user.getRole().toString());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUsername());
 
         log.info("User logged in successfully: {}", request.getUsername());
 
-        return ResponseEntity.ok(new JwtResponse(
-                token,
-                "Bearer",
-                user.getId(),
-                user.getUsername(),
-                user.getRole().toString(),
-                jwtProvider.getExpirationMs()
-        ));
+        return ResponseEntity.ok(JwtResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .userId(user.getId())
+                .username(user.getUsername())
+                .role(user.getRole().toString())
+                .expiresIn(jwtProvider.getAccessTokenExpirationMs())
+                .build());
     }
 
+    // Refresh access token using refresh token
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token")
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        log.info("Token refresh request received");
+
+        String refreshToken = request.getRefreshToken();
+
+        // Validate refresh token
+        if (!jwtProvider.validateRefreshToken(refreshToken)) {
+            log.warn("Invalid or expired refresh token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Invalid or expired refresh token"));
+        }
+
+        // Extract username from refresh token
+        String username = jwtProvider.getUsernameFromRefreshToken(refreshToken);
+        if (username == null) {
+            log.error("Failed to extract username from refresh token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Invalid refresh token"));
+        }
+
+        // Verify user still exists and is enabled
+        User user = userRepository.findByUsernameAndEnabledTrue(username)
+                .orElse(null);
+
+        if (user == null) {
+            log.warn("User not found or disabled: {}", username);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("User not found or disabled"));
+        }
+
+        // Generate new access token
+        String newAccessToken = jwtProvider.generateAccessToken(user.getUsername(), user.getRole().toString());
+
+        log.info("Access token refreshed successfully for user: {}", username);
+
+        return ResponseEntity.ok(RefreshTokenResponse.builder()
+                .accessToken(newAccessToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtProvider.getAccessTokenExpirationMs())
+                .build());
+    }
+
+    // Validate access token
     @PostMapping("/validate")
-    @Operation(summary = "Validate JWT token")
+    @Operation(summary = "Validate JWT access token")
     public ResponseEntity<?> validateToken(@Valid @RequestBody TokenValidationRequest request) {
-        boolean isValid = jwtProvider.validateToken(request.getToken());
+        boolean isValid = jwtProvider.validateAccessToken(request.getToken());
 
         if (isValid) {
-            String username = jwtProvider.getUsernameFromToken(request.getToken());
-            String role = jwtProvider.getRoleFromToken(request.getToken());
+            String username = jwtProvider.getUsernameFromAccessToken(request.getToken());
+            String role = jwtProvider.getRoleFromAccessToken(request.getToken());
             return ResponseEntity.ok(new TokenValidationResponse(true, username, role));
         }
 
