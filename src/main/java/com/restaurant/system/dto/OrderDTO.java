@@ -1,7 +1,10 @@
 package com.restaurant.system.dto;
 
 import com.restaurant.system.entity.enums.OrderStatus;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,12 +31,15 @@ public class OrderDTO {
 
     private Long reservationId;
 
+    @Size(max = 500, message = "Notes cannot exceed 500 characters")
     private String notes;
 
     private Long createdByUserId;
 
     private OffsetDateTime createdAt;
 
+    @NotEmpty(message = "Order must contain at least one item")
+    @Valid
     @Builder.Default
     private List<OrderItemDTO> items = new ArrayList<>();
 }

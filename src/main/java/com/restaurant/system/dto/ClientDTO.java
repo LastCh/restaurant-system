@@ -3,6 +3,7 @@ package com.restaurant.system.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,9 +19,10 @@ public class ClientDTO {
     private Long id;
 
     @NotBlank(message = "Full name is required")
+    @Size(min = 2, max = 255, message = "Full name must be between 2 and 255 characters")
     @Pattern(
-            regexp = "^[A-Za-zА-Яа-яёЁ ]+$",
-            message = "Name should contain only letters and spaces"
+            regexp = "^[A-Za-zА-Яа-яёЁ\\s'-]+$",
+            message = "Name should contain only letters, spaces, hyphens and apostrophes"
     )
     private String fullName;
 
@@ -33,6 +35,7 @@ public class ClientDTO {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
+    @Size(max = 255, message = "Email cannot exceed 255 characters")
     private String email;
 
     private OffsetDateTime createdAt;
