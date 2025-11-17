@@ -1,4 +1,4 @@
--- V4: Insert default users for testing
+-- V11: Insert default users for testing
 -- Password for all: admin123
 -- IMPORTANT: Change passwords in production!
 
@@ -9,14 +9,12 @@ VALUES
     ('waiter', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Waiter', '+79999999997', 'WAITER', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (username) DO NOTHING;
 
--- Add test clients
 INSERT INTO clients (full_name, phone, email, created_at, updated_at)
 VALUES
     ('Иван Иванов', '+79001234567', 'ivan@example.com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('Мария Петрова', '+79007654321', 'maria@example.com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (email) DO NOTHING;
 
--- Add test dishes
 INSERT INTO dishes (name, description, category, price, is_available, preparation_time_minutes, created_at, updated_at)
 VALUES
     ('Борщ', 'Традиционный украинский борщ со сметаной', 'Супы', 350.00, true, 20, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -26,7 +24,6 @@ VALUES
     ('Капучино', 'Кофе с молочной пенкой', 'Напитки', 180.00, true, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT DO NOTHING;
 
--- Add test tables
 INSERT INTO restaurant_tables (table_number, capacity, is_available, location, created_at, updated_at)
 VALUES
     ('1', 2, true, 'Main Hall', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),

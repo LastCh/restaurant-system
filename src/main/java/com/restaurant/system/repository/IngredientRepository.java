@@ -13,7 +13,6 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
     @Query("SELECT i FROM Ingredient i WHERE i.stockQuantity < i.minStockLevel")
     List<Ingredient> findLowStockIngredients();
 
-    // Statistics methods
     @Query("SELECT COUNT(i) FROM Ingredient i WHERE i.stockQuantity < i.minStockLevel")
     Long countLowStockItems();
 }

@@ -17,16 +17,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Page<Reservation> findByClient_Id(Long clientId, Pageable pageable);
     Page<Reservation> findByStatus(ReservationStatus status, Pageable pageable);
 
-    @Query("SELECT r FROM Reservation r WHERE r.table.id = :tableId " +
+    @Query(value = "SELECT * FROM reservations r " +
+            "WHERE r.table_id = :tableId " +
             "AND r.status = 'ACTIVE' " +
-            "AND r.reservationTime < :endTime " +
-            "AND (r.reservationTime + (r.durationMinutes * INTERVAL '1 minute')) > :startTime")
+            "AND r.reservation_time < :endTime " +
+            "AND (r.reservation_time + (r.duration_minutes * INTERVAL '1 minute')) > :startTime",
+            nativeQuery = true)
     List<Reservation> findActiveReservationsForTable(
             @Param("tableId") Long tableId,
             @Param("startTime") OffsetDateTime startTime,
             @Param("endTime") OffsetDateTime endTime
     );
 
-    // Statistics methods
-    Long countByStatus(ReservationStatus status);
+    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.status = :status")
+    Long countByStatus(@Param("status") ReservationStatus status);
 }
