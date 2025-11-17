@@ -20,13 +20,13 @@ server:
   port: ${APP_PORT:8080}
 
 jwt:
-  # Access token - короткоживущий (15 минут)
   secret: ${JWT_SECRET:must-be-set-in-production-min-512-bits}
-  expiration: ${JWT_EXPIRATION:900000}  # 15 минут (было 3600000)
-
-  # Refresh token - долгоживущий (7 дней)
+  expiration: ${JWT_EXPIRATION:900000}
   refresh-secret: ${JWT_REFRESH_SECRET:must-be-set-in-production-different-secret}
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 7 дней
-
-  # Алгоритм подписания
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
   algorithm: HS512
+
+cors:
+  # Comma-separated list of allowed origins
+  # For production, specify your actual domain
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
