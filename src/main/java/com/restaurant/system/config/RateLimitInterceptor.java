@@ -72,6 +72,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
             return xForwardedFor.split(",")[0];
         }
+        String clientIP = request.getRemoteAddr();
+        log.info("Rate limit key for user: {}", clientIP);
         return request.getRemoteAddr();
     }
 }

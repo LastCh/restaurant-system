@@ -58,32 +58,48 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // Swagger UI
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        // Swagger UI (общий доступ)
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
 
-                        // Public endpoints
+                        // Публичные эндпоинты
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/dishes/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
-                        // Admin only endpoints
+                        // Статистика: ADMIN + MANAGER
+                        .requestMatchers("/api/admin/statistics/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Остальные admin-эндпоинты — только ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
+
+                        // Пользователи, поставщики, поставки — ADMIN, MANAGER
                         .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/suppliers/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/supplies/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Ингредиенты — ADMIN, MANAGER, WAITER
                         .requestMatchers("/api/ingredients/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
 
-                        // Staff endpoints
+                        // Заказы — ADMIN, MANAGER, WAITER
                         .requestMatchers("/api/orders/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
+
+                        // Продажи — ADMIN, MANAGER
                         .requestMatchers("/api/sales/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Столы — ADMIN, MANAGER, WAITER
                         .requestMatchers("/api/tables/**").hasAnyRole("ADMIN", "MANAGER", "WAITER")
 
-                        // Authenticated endpoints
+                        // Бронирования и клиенты — любой аутентифицированный пользователь
                         .requestMatchers("/api/reservations/**").authenticated()
                         .requestMatchers("/api/clients/**").authenticated()
 
-                        // All other
+                        // Остальное — требуем аутентификацию
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -99,23 +115,17 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Разрешаем конкретные порты для разработки
-        List<String> allowedOrigins = Arrays.asList(
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "http://localhost:8080",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:8080"
-        );
+        // Берём origins из application.yml / .env
+        List<String> origins = Arrays.asList(allowedOrigins);
+        configuration.setAllowedOrigins(origins);
 
-        configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+        ));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
@@ -135,5 +145,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }
